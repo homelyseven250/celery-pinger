@@ -5,8 +5,6 @@ import StreamArray from "stream-json/streamers/StreamArray"
 import 'dotenv/config'
 import { readFile } from "fs/promises"
 
-let ips: string[] = []
-
 const prisma = new PrismaClient()
 const pipeline = createReadStream("./scan.json").pipe(StreamArray.withParser())
 
@@ -16,15 +14,14 @@ const alreadyWriter = createWriteStream("done.txt", { flags: "a" })
 
 pipeline.on("data", async (data) => {
     if (!already.has(data.value.ip)) {
-        const ip = data.value.ip
-        status(ip).then(async (res) => {
+        status(data.value.ip).then(async (res) => {
             if (res.version.protocol != undefined) {
-                console.log(ip)
+                console.log(data.value.ip)
             }
             try {
                 await prisma.result.create({
                     data: {
-                        ip,
+                        ip: data.value.ip,
                         software: res.version.name,
                         protocol: res.version.protocol,
                         onlinePlayers: res.players.online,
@@ -38,7 +35,7 @@ pipeline.on("data", async (data) => {
             catch (e) {
                 console.log(e)
             }
-            alreadyWriter.write(ip + "\n")
+            alreadyWriter.write(data.value.ip + "\n")
         })
     }
 })
