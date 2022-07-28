@@ -4,7 +4,7 @@ import { status } from "minecraft-server-util"
 import StreamArray from "stream-json/streamers/StreamArray"
 const streamArray = new StreamArray()
 const ips: string[] = []
-
+import 'dotenv/config' 
 const prisma = new PrismaClient()
 const pipeline = createReadStream("./scan.json").pipe(StreamArray.withParser())
 
