@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Result" ALTER COLUMN "timestamp" SET DEFAULT CURRENT_TIMESTAMP;
