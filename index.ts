@@ -17,21 +17,25 @@ const alreadyWriter = createWriteStream("done.txt", { flags: "a" })
 pipeline.on("data", async (data) => {
     if (!already.has(data.value.ip)) {
         const ip = data.value.ip
-        console.log(ip)
-        const res = await status(ip)
-        await prisma.result.create({
-            data: {
-                ip,
-                software: res.version.name,
-                protocol: res.version.protocol,
-                onlinePlayers: res.players.online,
-                maxPlayers: res.players.max,
-                samplePlayers: res.players.sample?.map(player => player.id),
-                motd: res.motd.raw,
-                favicon: res.favicon ? Buffer.from(res.favicon) : undefined
-            }
-        })
-        alreadyWriter.write(ip+"\n")
+        // console.log(ip)
+        try {
+            const res = await status(ip)
+            await prisma.result.create({
+                data: {
+                    ip,
+                    software: res.version.name,
+                    protocol: res.version.protocol,
+                    onlinePlayers: res.players.online,
+                    maxPlayers: res.players.max,
+                    samplePlayers: res.players.sample?.map(player => player.id),
+                    motd: res.motd.raw,
+                    favicon: res.favicon ? Buffer.from(res.favicon) : undefined
+                }
+            })
+            alreadyWriter.write(ip + "\n")
+        } catch (e) {
+            console.log(e)
+        }
     }
 })
 
