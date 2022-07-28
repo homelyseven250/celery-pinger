@@ -15,6 +15,8 @@ const alreadyWriter = await createWriteStream("done.txt", {flags: "a"})
 pipeline.on("data", data => {
     if (!already.includes(data.value.ip)) {
         ips.push(data.value.ip)
+    } else {
+        console.log("excluded" + data.value.ip)
     }
 })
 
