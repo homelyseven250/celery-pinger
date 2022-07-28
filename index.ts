@@ -11,7 +11,6 @@ const pipeline = createReadStream("./scan.json").pipe(StreamArray.withParser())
 const already = (await prisma.result.findMany()).map(result => result.ip)
 pipeline.on("data", data => {
     if (!(already.includes(data.value.ip))) {
-        console.log(data.value.ip)
         ips.push(data.value.ip)
     }
 })
