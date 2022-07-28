@@ -14,45 +14,24 @@ const already = new Set((await readFile("done.txt")).toString().split("\n"))
 console.log(`ALREADY length ${already.size}`)
 const alreadyWriter = createWriteStream("done.txt", { flags: "a" })
 
-
-
-const runner = async () => {
-    console.log("filtered and beginning pinger")
-    setInterval(async () => {
-        let some: undefined | string[] = ips.splice(0, 500)
-        console.log(some, ips)
-        some.forEach(async (ip, index) => {
-            alreadyWriter.write(ip + "\n")
-            try {
-                const res = await status(ip)
-                console.log(res)
-                await prisma.result.create({
-                    data: {
-                        ip,
-                        software: res.version.name,
-                        protocol: res.version.protocol,
-                        onlinePlayers: res.players.online,
-                        maxPlayers: res.players.max,
-                        samplePlayers: res.players.sample?.map(player => player.id),
-                        motd: res.motd.raw
-                    }
-                })
-            } catch (e) {
-                console.log(e)
-            }
-        })
-        some = undefined
-        global.gc!()
-    }, 1000)
-
-}
-
 pipeline.on("data", async (data) => {
     if (!already.has(data.value.ip)) {
-        ips.push(data.value.ip)
-    }
-    if (ips.length > 500000) {
-        runner()
+        const ip = data.value.ip
+        console.log(ip)
+        const res = await status(ip)
+        await prisma.result.create({
+            data: {
+                ip,
+                software: res.version.name,
+                protocol: res.version.protocol,
+                onlinePlayers: res.players.online,
+                maxPlayers: res.players.max,
+                samplePlayers: res.players.sample?.map(player => player.id),
+                motd: res.motd.raw,
+                favicon: res.favicon ? Buffer.from(res.favicon) : undefined
+            }
+        })
+        alreadyWriter.write(ip+"\n")
     }
 })
 
