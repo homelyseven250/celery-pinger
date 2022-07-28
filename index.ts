@@ -26,6 +26,7 @@ const runner = async() => {
             alreadyWriter.write(ip + "\n")
             try {
                 const res = await status(ip)
+                console.log(res)
                 await prisma.result.create({
                     data: {
                         ip,
@@ -38,6 +39,7 @@ const runner = async() => {
                     }
                 })
             } catch (e) {
+                console.log(e)
             }
         })
         some = undefined
