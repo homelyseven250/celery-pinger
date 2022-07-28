@@ -15,6 +15,7 @@ const alreadyWriter = createWriteStream("done.txt", { flags: "a" })
 pipeline.on("data", async (data) => {
     if (!already.has(data.value.ip)) {
         status(data.value.ip).then(async (res) => {
+            await new Promise(r => setTimeout(r, 25));
             if (res.version.protocol != undefined) {
                 console.log(data.value.ip)
             }
