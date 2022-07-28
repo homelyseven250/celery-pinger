@@ -11,15 +11,12 @@ const pipeline = createReadStream("./scan.json").pipe(StreamArray.withParser())
 const already = (await prisma.result.findMany()).map(result => result.ip)
 
 pipeline.on("data", data => {
+    if (!already.includes(data.value.ip)) {
         ips.push(data.value.ip)
+    }
 })
 
 pipeline.on("end", async() => {
-    ips.forEach((ip, index, array) => {
-        if (already.includes(ip)) {
-            array.splice(index, 1)
-        }
-    })
     
     console.log(`IPS length ${ips.length}`)
     console.log(`ALREADY length ${already.length}`)
