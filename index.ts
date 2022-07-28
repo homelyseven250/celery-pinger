@@ -22,7 +22,7 @@ const runner = async() => {
     console.log("filtered and beginning pinger")
     setInterval(async () => {
         let some: undefined | string[] = toPing.splice(0, 500)
-        console.log(some)
+        console.log(some, toPing)
         some.forEach(async (ip, index) => {
             alreadyWriter.write(ip + "\n")
             try {
