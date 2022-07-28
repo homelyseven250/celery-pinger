@@ -4,13 +4,19 @@ import { status } from "minecraft-server-util"
 import StreamArray from "stream-json/streamers/StreamArray"
 const streamArray = new StreamArray()
 const ips: string[] = []
-import 'dotenv/config' 
+import 'dotenv/config'
 const prisma = new PrismaClient()
 const pipeline = createReadStream("./scan.json").pipe(StreamArray.withParser())
 
+const already = (await prisma.result.findMany()).map(result => result.ip)
 pipeline.on("data", data => {
-    ips.push(data.value.ip)
+    if (!(already.includes(data.value.ip))) {
+        ips.push(data.value.ip)
+    }
 })
+
+
+
 console.log("Finished ip loading")
 setInterval(async () => {
     let some: undefined | string[] = ips.splice(0, 500)
