@@ -15,6 +15,9 @@ pipeline.on("data", data => {
     }
 })
 
+console.log(`IPS length ${ips.length}`)
+console.log(`ALREADY length ${already.length}`)
+
 
 
 console.log("Finished ip loading")
