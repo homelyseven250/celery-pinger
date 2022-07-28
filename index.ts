@@ -1,15 +1,16 @@
 import { PrismaClient } from "@prisma/client"
-import { createReadStream } from "fs"
+import { createReadStream, createWriteStream } from "fs"
 import { status } from "minecraft-server-util"
 import StreamArray from "stream-json/streamers/StreamArray"
 const streamArray = new StreamArray()
 const ips: string[] = []
 import 'dotenv/config'
+import { readFile } from "fs/promises"
 const prisma = new PrismaClient()
 const pipeline = createReadStream("./scan.json").pipe(StreamArray.withParser())
 
-const already = (await prisma.result.findMany()).map(result => result.ip)
-
+const already = (await readFile("done.txt")).toString().split("\n")
+const alreadyWriter = await createWriteStream("done.txt", {flags: "a"})
 pipeline.on("data", data => {
     if (!already.includes(data.value.ip)) {
         ips.push(data.value.ip)
@@ -27,6 +28,7 @@ pipeline.on("end", async() => {
     setInterval(async () => {
         let some: undefined | string[] = ips.splice(0, 500)
         some.forEach(async (ip, index) => {
+            alreadyWriter.write(ip + "\n")
             try {
                 const res = await status(ip)
                 await prisma.result.create({
