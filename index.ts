@@ -36,7 +36,7 @@ pipeline.on("data", async (data) => {
                 console.log(e)
             }
             alreadyWriter.write(data.value.ip + "\n")
-        })
+        }).catch(e => console.log(e))
     }
 })
 
