@@ -10,6 +10,7 @@ const prisma = new PrismaClient()
 const pipeline = createReadStream("./scan.json").pipe(StreamArray.withParser())
 
 const already = (await readFile("done.txt")).toString().split("\n")
+console.log(`ALREADY length ${already.length}`)
 const alreadyWriter = await createWriteStream("done.txt", {flags: "a"})
 pipeline.on("data", data => {
     if (!already.includes(data.value.ip)) {
@@ -18,13 +19,7 @@ pipeline.on("data", data => {
 })
 
 pipeline.on("end", async() => {
-    
-    console.log(`IPS length ${ips.length}`)
-    console.log(`ALREADY length ${already.length}`)
-    
-    
-    
-    console.log("Finished ip loading")
+    console.log("Started pinging")
     setInterval(async () => {
         let some: undefined | string[] = ips.splice(0, 500)
         some.forEach(async (ip, index) => {
