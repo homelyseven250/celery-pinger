@@ -2,28 +2,26 @@ import { PrismaClient } from "@prisma/client"
 import { createReadStream, createWriteStream } from "fs"
 import { status } from "minecraft-server-util"
 import StreamArray from "stream-json/streamers/StreamArray"
-const streamArray = new StreamArray()
-const ips: string[] = []
 import 'dotenv/config'
 import { readFile } from "fs/promises"
+
+let ips: string[] = []
+
 const prisma = new PrismaClient()
 const pipeline = createReadStream("./scan.json").pipe(StreamArray.withParser())
 
-const already = (await readFile("done.txt")).toString().split("\n")
-console.log(`ALREADY length ${already.length}`)
-const alreadyWriter = await createWriteStream("done.txt", {flags: "a"})
+const already = new Set((await readFile("done.txt")).toString().split("\n"))
+console.log(`ALREADY length ${already.size}`)
+const alreadyWriter = createWriteStream("done.txt", {flags: "a"})
 pipeline.on("data", data => {
-    if (!already.includes(data.value.ip)) {
-        ips.push(data.value.ip)
-    } else {
-        console.log("excluded" + data.value.ip)
-    }
+    ips.push(data.value.ip)
 })
 
 pipeline.on("end", async() => {
-    console.log("Started pinging")
+    const toPing = ips.filter(ip => !already.has(ip))
+
     setInterval(async () => {
-        let some: undefined | string[] = ips.splice(0, 500)
+        let some: undefined | string[] = toPing.splice(0, 500)
         some.forEach(async (ip, index) => {
             alreadyWriter.write(ip + "\n")
             try {
