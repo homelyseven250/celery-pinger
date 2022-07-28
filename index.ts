@@ -6,6 +6,7 @@ import 'dotenv/config'
 import { readFile } from "fs/promises"
 
 const prisma = new PrismaClient()
+prisma.$connect()
 const pipeline = createReadStream("./scan.json").pipe(StreamArray.withParser())
 
 const already = new Set((await readFile("done.txt")).toString().split("\n"))
