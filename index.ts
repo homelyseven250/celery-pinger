@@ -22,6 +22,7 @@ const runner = async() => {
     console.log("filtered and beginning pinger")
     setInterval(async () => {
         let some: undefined | string[] = toPing.splice(0, 500)
+        console.log(some)
         some.forEach(async (ip, index) => {
             alreadyWriter.write(ip + "\n")
             try {
@@ -48,7 +49,7 @@ const runner = async() => {
     
 }
 
-pipeline.on("data", data => {
+pipeline.on("data", async (data) => {
     ips.push(data.value.ip)
     if (ips.length > 500000) {
         runner()
