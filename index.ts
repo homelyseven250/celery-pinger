@@ -19,7 +19,7 @@ pipeline.on("data", data => {
 
 pipeline.on("end", async() => {
     const toPing = ips.filter(ip => !already.has(ip))
-
+    console.log("filtered and beginning pinger")
     setInterval(async () => {
         let some: undefined | string[] = toPing.splice(0, 500)
         some.forEach(async (ip, index) => {
