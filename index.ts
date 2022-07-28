@@ -20,6 +20,9 @@ pipeline.on("data", async (data) => {
         // console.log(ip)
         try {
             const res = await status(ip)
+            if (res.version.protocol != undefined) {
+                console.log(ip)
+            }
             await prisma.result.create({
                 data: {
                     ip,
@@ -34,7 +37,7 @@ pipeline.on("data", async (data) => {
             })
             alreadyWriter.write(ip + "\n")
         } catch (e) {
-            console.log(e)
+            // console.log(e)
         }
     }
 })
