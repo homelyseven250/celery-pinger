@@ -12,17 +12,15 @@ const pipeline = createReadStream("./scan.json").pipe(StreamArray.withParser())
 
 const already = new Set((await readFile("done.txt")).toString().split("\n"))
 console.log(`ALREADY length ${already.size}`)
-const alreadyWriter = createWriteStream("done.txt", {flags: "a"})
+const alreadyWriter = createWriteStream("done.txt", { flags: "a" })
 
 
 
-const runner = async() => {
-    const toPing = ips.filter(ip => !already.has(ip))
-    ips = []
+const runner = async () => {
     console.log("filtered and beginning pinger")
     setInterval(async () => {
-        let some: undefined | string[] = toPing.splice(0, 500)
-        console.log(some, toPing)
+        let some: undefined | string[] = ips.splice(0, 500)
+        console.log(some, ips)
         some.forEach(async (ip, index) => {
             alreadyWriter.write(ip + "\n")
             try {
@@ -46,11 +44,13 @@ const runner = async() => {
         some = undefined
         global.gc!()
     }, 1000)
-    
+
 }
 
 pipeline.on("data", async (data) => {
-    ips.push(data.value.ip)
+    if (!already.has(data.value.ip)) {
+        ips.push(data.value.ip)
+    }
     if (ips.length > 500000) {
         runner()
     }
