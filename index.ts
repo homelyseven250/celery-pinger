@@ -13,7 +13,7 @@ pipeline.on("data", data => {
 })
 console.log("Finished ip loading")
 setInterval(async () => {
-    const some = ips.splice(0, 500)
+    let some: null | string[] = ips.splice(0, 500)
     some.forEach(async (ip, index) => {
         try {
             const res = await status(ip)
@@ -29,7 +29,7 @@ setInterval(async () => {
                 }
             })
         } catch (e) {
-
         }
     })
+    some = null;
 }, 1000)
