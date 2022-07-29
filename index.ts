@@ -20,26 +20,29 @@ pipeline.on("data", async (data) => {
     // await new Promise(r => setTimeout(r, 25));
 
 })
-setInterval(() => {
-    Promise.all(ips.splice(0, 500).map(async (ip, index) => {
-        status(ip).then((res) => {
-            if (res.version.protocol != undefined) {
-                console.log(ip)
-            }
-            prisma.result.create({
-                data: {
-                    ip: ip,
-                    software: res.version.name,
-                    protocol: res.version.protocol,
-                    onlinePlayers: res.players.online,
-                    maxPlayers: res.players.max,
-                    samplePlayers: res.players.sample?.map(player => player.id),
-                    motd: res.motd.raw,
-                    favicon: res.favicon ? Buffer.from(res.favicon) : undefined
+pipeline.on("end", () => {
+    console.log("pipline ended, beginning timer")
+    setInterval(() => {
+        Promise.all(ips.splice(0, 500).map(async (ip, index) => {
+            status(ip).then(async(res) => {
+                if (res.version.protocol != undefined) {
+                    console.log(ip)
                 }
-            })
-        }).catch((e) => void (e))
-    }))
-    // global.gc!()
-}, 50)
-process.stdin.resume()
+                await prisma.result.create({
+                    data: {
+                        ip: ip,
+                        software: res.version.name,
+                        protocol: res.version.protocol,
+                        onlinePlayers: res.players.online,
+                        maxPlayers: res.players.max,
+                        samplePlayers: res.players.sample?.map(player => player.id),
+                        motd: res.motd.raw,
+                        favicon: res.favicon ? Buffer.from(res.favicon) : undefined
+                    }
+                })
+            }).catch((e) => void (e))
+        }))
+        // global.gc!()
+    }, 50)
+})
+// process.stdin.resume()
