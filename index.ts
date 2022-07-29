@@ -20,11 +20,14 @@ pipeline.on("data", async (data) => {
     // await new Promise(r => setTimeout(r, 25));
 
 })
-pipeline.on("end", () => {
+pipeline.on("end", async () => {
     console.log("pipline ended, beginning timer")
-    setInterval(async() => {
+    setInterval(() => {
+        global.gc!()
+    }, 2000)
+    while (true) {
         await Promise.all(ips.splice(0, 500).map(async (ip, index) => {
-            status(ip).then(async(res) => {
+            status(ip).then(async (res) => {
                 if (res.version.protocol != undefined) {
                     console.log(ip)
                 }
@@ -42,9 +45,7 @@ pipeline.on("end", () => {
                 })
             }).catch((e) => void (e))
         }))
-    }, 50)
-    setInterval(() => {
-        global.gc!()
-    }, 2000)
+        await new Promise(r => setTimeout(r, 50));
+    }
 })
 // process.stdin.resume()
