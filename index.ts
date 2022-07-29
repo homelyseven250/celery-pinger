@@ -42,4 +42,4 @@ pipeline.on("data", async (data) => {
     }
 })
 
-
+process.stdin.resume()
