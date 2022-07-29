@@ -7,12 +7,13 @@ import { readFile } from "fs/promises"
 
 const prisma = new PrismaClient()
 prisma.$connect()
-const pipeline = createReadStream("./scan.json").pipe(StreamArray.withParser())
+
 
 const already = new Set((await readFile("done.txt")).toString().split("\n"))
 console.log(`ALREADY length ${already.size}`)
 const alreadyWriter = createWriteStream("done.txt", { flags: "a" })
 
+const pipeline = createReadStream("./scan.json").pipe(StreamArray.withParser())
 pipeline.on("data", async (data) => {
     if (!already.has(data.value.ip)) {
         status(data.value.ip).then(async (res) => {
