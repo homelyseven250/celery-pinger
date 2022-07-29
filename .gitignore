@@ -1,6 +1,6 @@
 scan.json
 binary-scan.bin
-
+done.txt
 # Logs
 logs
 *.log
