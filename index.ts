@@ -14,15 +14,15 @@ console.log(`ALREADY length ${already.size}`)
 const alreadyWriter = createWriteStream("done.txt", { flags: "a" })
 
 const pipeline = createReadStream("./scan.json").pipe(StreamArray.withParser())
-pipeline.on("data", async (data) => {
+pipeline.on("data", (data) => {
     if (!already.has(data.value.ip)) {
-        status(data.value.ip).then(async (res) => {
+        status(data.value.ip).then((res) => {
             // await new Promise(r => setTimeout(r, 25));
             if (res.version.protocol != undefined) {
                 console.log(data.value.ip)
             }
             try {
-                await prisma.result.create({
+                 prisma.result.create({
                     data: {
                         ip: data.value.ip,
                         software: res.version.name,
