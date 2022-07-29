@@ -22,8 +22,8 @@ pipeline.on("data", async (data) => {
 })
 pipeline.on("end", () => {
     console.log("pipline ended, beginning timer")
-    setInterval(() => {
-        Promise.all(ips.splice(0, 500).map(async (ip, index) => {
+    setInterval(async() => {
+        await Promise.all(ips.splice(0, 500).map(async (ip, index) => {
             status(ip).then(async(res) => {
                 if (res.version.protocol != undefined) {
                     console.log(ip)
@@ -42,7 +42,9 @@ pipeline.on("end", () => {
                 })
             }).catch((e) => void (e))
         }))
-        // global.gc!()
     }, 50)
+    setInterval(() => {
+        global.gc!()
+    }, 2000)
 })
 // process.stdin.resume()
